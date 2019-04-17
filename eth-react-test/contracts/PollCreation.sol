@@ -35,6 +35,7 @@ contract PollCreation{
     uint public numberofVoters;
     //Count number of Polls created
     uint public numberofPolls;
+	string public pollName;
     
 	
 	//The modifier allows us to check for condition before executing a function
@@ -64,7 +65,7 @@ contract PollCreation{
 	    //Set pollEnded boolean value
 	    pollEnded = false;
 	    numberofVoters = 0;
-	    
+	    //Initialize the name of the poll as well as vote count to 0
 	    for(uint i=0; i<nameOfPolls.length; i++){
 	        Poll memory p = polls[i];
 	        p.pollName = nameOfPolls[i];
@@ -81,6 +82,10 @@ contract PollCreation{
 		pollStatus = _pollStatus;
 	}
 
+	function setPollName(string memory _pollName) public {
+		pollName = _pollName;
+	}
+
 	//Change address voter to an array I can pass? Maybe add a paramter to voter to classify?
 	function RightToVote(address voter) public pollCreator(){
 	    voters[voter].canVote = true;
@@ -91,7 +96,7 @@ contract PollCreation{
 	    if (now > pollVotingStarts + timeAlottedForVoting){
 	        revert();
 	    }
-	    //Record the person who has voted
+	    //Record the person who has voted in struct
 	    Voter storage userVoting = voters[msg.sender];
 	    
 	    if(userVoting.voted){
@@ -109,7 +114,7 @@ contract PollCreation{
 	
 	{//Check voting has ended.
 	if(now <= pollVotingStarts + timeAlottedForVoting) revert(); //If it hasn't throw error
-	
+	//check winner by interating through all the polls we have created, check one with the highest poll count
 	uint winningPollByVoteCount;
 	for(uint x=0; x< numberofPolls;x++){
 	    if(polls[x].voteCount> winningPollByVoteCount){
